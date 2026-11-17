@@ -1,0 +1,15 @@
+# Dataset is large and is downloaded separately.
+dataset/
+dataset.zip
+dataset-download/
+
+# Local Python environments and generated caches.
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# TensorBoard logs and transient OS/editor files.
+logs/
+.DS_Store
+Thumbs.db
