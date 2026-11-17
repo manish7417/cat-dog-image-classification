@@ -13,6 +13,8 @@ from data_prep import prep_and_load_data
 from model import get_model
 import constants as CONST
 
+OUTPUT_DIR = os.path.join(CONST.PROJECT_DIR, 'output')
+
 
 def plotter(history_file):
     with open(history_file, 'rb') as file:
@@ -25,7 +27,7 @@ def plotter(history_file):
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
     plt.tight_layout()
-    plt.savefig('18_000_15epoch_accuracy.png')
+    plt.savefig(os.path.join(OUTPUT_DIR, '18_000_15epoch_accuracy.png'))
     plt.show()
     plt.close()
 
@@ -36,14 +38,29 @@ def plotter(history_file):
     plt.xlabel('epoch')
     plt.legend(['train', 'val'], loc='upper left')
     plt.tight_layout()
-    plt.savefig('18_000_15epoch_loss.png')
+    plt.savefig(os.path.join(OUTPUT_DIR, '18_000_15epoch_loss.png'))
     plt.show()
     plt.close()
 
 
 def video_write(model):
+    DIR = CONST.TEST_DIR
+    if not os.path.isdir(DIR):
+        print(f'skipping prediction video; test image folder not found: {DIR}')
+        return
+
+    image_paths = sorted(os.listdir(DIR))[:200]
+    if not image_paths:
+        print(f'skipping prediction video; no images found in: {DIR}')
+        return
+
     fourcc = cv2.VideoWriter_fourcc(*'DIVX')
-    out = cv2.VideoWriter("./prediction.mp4", fourcc, 1.0, (400, 400))
+    out = cv2.VideoWriter(
+        os.path.join(OUTPUT_DIR, 'prediction.mp4'), fourcc, 1.0, (400, 400)
+    )
+    if not out.isOpened():
+        out.release()
+        raise RuntimeError('Could not create output/prediction.mp4.')
     val_map = {1: 'Dog', 0: 'Cat'}
 
     font = cv2.FONT_HERSHEY_SIMPLEX
@@ -52,9 +69,6 @@ def video_write(model):
     font_color = (255, 255, 255)
     line_type = 2
 
-    DIR = CONST.TEST_DIR
-    image_paths = sorted(os.listdir(DIR))
-    image_paths = image_paths[:200]
     count = 0
     for img_path in image_paths:
         image, image_std = process_image(DIR, img_path)
@@ -88,6 +102,7 @@ def process_image(directory, img_path):
 
 
 if __name__ == "__main__":
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
     data = np.array(prep_and_load_data(), dtype=object)
     train_size = int(CONST.DATA_SIZE * CONST.SPLIT_RATIO)
     print('dataset length:', len(data), 'train size:', train_size)
@@ -102,7 +117,9 @@ if __name__ == "__main__":
     test_labels = np.array([i[1] for i in test_data])
     print('data fetched..')
 
-    tensorboard = tf.keras.callbacks.TensorBoard(log_dir='./logs')
+    tensorboard = tf.keras.callbacks.TensorBoard(
+        log_dir=os.path.join(CONST.PROJECT_DIR, 'logs')
+    )
     model = get_model()
     print('training started...')
     history = model.fit(
@@ -116,9 +133,9 @@ if __name__ == "__main__":
     )
     print('training done...')
 
-    model.save('18_000.h5')
+    model.save(os.path.join(OUTPUT_DIR, '18_000.h5'))
 
-    history_file = '18_000_history.pickle'
+    history_file = os.path.join(OUTPUT_DIR, '18_000_history.pickle')
     with open(history_file, 'wb') as file:
         pickle.dump(history.history, file)
 

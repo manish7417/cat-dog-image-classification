@@ -1,90 +1,84 @@
 # Cat and Dog Image Classification Using CNN
 
-An image-classification project that trains a convolutional neural network (CNN) to distinguish cats from dogs and includes a separate live webcam object detector.
-
 **Project author: Mr Manish Kumar**
 
-> **Important:** The project contains two different models. `main.py` trains the custom CNN saved as `18_000.h5`. The live webcam app uses the separately pretrained OpenCV Zoo YOLOX detector at `models/object_detection_yolox_2022nov.onnx`. The webcam can detect people, cats, and dogs; it does not load the custom CNN model.
+This project trains a custom convolutional neural network (CNN) to classify cat and dog images. The live webcam application also uses this same trained CNN.
 
-## What this project does
+> **Dataset note:** This version uses the Dogs vs. Cats image dataset already downloaded for the project. It is a public dataset, not a dataset personally photographed by the author. If an instructor specifically requires self-collected images, replace or supplement it with your own labeled images and report their source accurately.
 
-- Trains a CNN using 18,000 labeled images from the Dogs vs. Cats training set.
-- Splits those images into 14,400 training and 3,600 validation images.
-- Saves the trained CNN, epoch history, accuracy/loss plots, and a prediction video for up to 200 images in `dataset/test1`.
-- Runs a live webcam object detector that draws boxes and confidence scores around detected people, cats, and dogs.
-- Displays **“No cat/dog detected”** when the detector does not find either animal.
+## What the project does
 
-## Results from the completed training run
+- Loads labeled cat/dog images and resizes them to 110 × 110 pixels.
+- Trains a CNN on 18,000 images with an 80/20 training/validation split.
+- Saves the trained model, training history, accuracy/loss plots, and test-image prediction video in `output/`.
+- Loads the saved CNN model for live webcam classification and displays `Cat` or `Dog` with its model confidence.
+
+## Completed training results
 
 | Metric | Result |
 |---|---:|
-| Training images used | 18,000 |
-| Training / validation split | 80% / 20% |
+| Images used | 18,000 |
+| Training / validation split | 14,400 / 3,600 (80% / 20%) |
 | Epochs | 15 |
 | Final training accuracy | 97.21% |
 | Final validation accuracy | 89.31% |
 | Final validation loss | 0.3293 |
 
-Validation accuracy is measured on the held-out validation split. The `test1` images do not have labels in this project, so predictions on those images are not an accuracy measurement. A displayed confidence such as 90% is a model score, not a guarantee of 90% correctness.
+Validation accuracy is measured on the held-out validation split. The unlabeled `dataset/test1` images are used for prediction examples, not for calculating accuracy. A confidence score is not a guarantee of correctness.
 
-### Training accuracy
+### Accuracy
 
 ![Training and validation accuracy](./output/18_000_15epoch_accuracy.png)
 
-### Training loss
+### Loss
 
 ![Training and validation loss](./output/18_000_15epoch_loss.png)
 
-### Live camera example
-
-The webcam detector can find multiple cats in the same frame and draw a bounding box and confidence score for each detection.
-
-![Live camera cat detections](./output/Screenshot%202026-11-17%20142525.png)
-
-## Repository layout
+## Project structure
 
 ```text
 image-classification-using-cnn/
-├── dataset/                         # Local data only; not included in Git
-│   ├── train/                       # Labeled cat/dog images (needed to retrain)
-│   └── test1/                       # Unlabeled prediction images (optional)
-├── models/
-│   ├── object_detection_yolox_2022nov.onnx  # Used by live_camera.py
-│   └── YOLOX_LICENSE.txt
-├── main.py                          # Trains CNN and creates plots/video
-├── live_camera.py                   # Runs the webcam object detector
-├── model.py                         # CNN architecture
-├── data_prep.py                     # Dataset loading and preprocessing
-├── constants.py                     # Dataset paths and training settings
+├── dataset/                         # Download and extract separately (not committed)
+│   ├── train/                       # Labeled cat/dog images
+│   └── test1/                       # Unlabeled test images (optional)
 ├── output/
-│   ├── 18_000.h5                    # Completed custom CNN checkpoint
-│   ├── 18_000_history.pickle        # Completed training metrics
+│   ├── 18_000.h5                    # Trained CNN used by webcam
+│   ├── 18_000_history.pickle        # Per-epoch training metrics
 │   ├── 18_000_15epoch_accuracy.png  # Accuracy graph
 │   ├── 18_000_15epoch_loss.png      # Loss graph
-│   └── prediction.mp4               # Example prediction video
+│   └── prediction.mp4               # Example predictions from test1
+├── constants.py                     # Dataset and model settings
+├── data_prep.py                     # Image loading and preprocessing
+├── model.py                         # CNN architecture
+├── main.py                          # CNN training and output generation
+├── live_camera.py                   # Live webcam CNN classification
 └── requirements.txt
 ```
 
-The dataset is not committed because it is large. The YOLOX detector is included, so the webcam demo can be run without downloading the training dataset. A completed CNN checkpoint and example training outputs are included in `output/`; running `main.py` creates fresh outputs in the project root.
+## Run the trained CNN on a webcam
 
-## Quick start: run the live camera
+Training is already complete and `output/18_000.h5` is included. To run the live classifier, **do not run `main.py`**; that command starts training again.
 
 ### 1. Install Python
 
-Install **Python 3.12 (64-bit)**. On Windows, the Python launcher command `py -3.12` is used below.
+Install Python 3.12 (64-bit). In Windows PowerShell, check it with:
 
-### 2. Download or clone this repository
+```powershell
+py -3.12 --version
+```
+
+### 2. Download or clone the project
 
 ```powershell
 git clone https://github.com/manish7417/cat-dog-image-classification.git
-cd image-classification-using-cnn
+cd cat-dog-image-classification
 ```
 
-Alternatively, on the GitHub repository page choose **Code → Download ZIP**, extract the ZIP, and open the extracted project folder in VS Code.
+Or use **Code → Download ZIP** on GitHub and open the extracted folder.
 
-### 3. Create an environment and install dependencies
+### 3. Install dependencies
 
-Run these commands in PowerShell from the project folder:
+Run in PowerShell from the project folder:
 
 ```powershell
 py -3.12 -m venv .venv
@@ -93,31 +87,29 @@ python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-If PowerShell blocks environment activation, either allow activation for the current terminal or use the environment's Python directly:
+If PowerShell prevents environment activation, install using the environment's Python directly:
 
 ```powershell
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 ```
 
-### 4. Start the camera detector
+### 4. Start live camera classification
 
 ```powershell
 py -3.12 live_camera.py
 ```
 
-Show a clear cat or dog to the webcam. Detected objects appear with a bounding box, label, and confidence score. Press **Q** while the camera window is focused to quit.
+Show a cat or dog to the camera. The CNN classifies the **whole camera frame** and overlays the predicted label and confidence. Press **Q** in the camera window to close it. Close other apps that may be using the webcam before starting.
 
-**No training is needed to run the live camera.** Close any other app currently using the webcam before starting it.
+### Important limitation
 
-## Optional: train the custom CNN again
+This is a two-class CNN trained only on cats and dogs. It always predicts one of those two classes; it has no `Person` or `Other` class and cannot draw animal bounding boxes. A human or unrelated scene may therefore be mislabeled as Cat or Dog. Confidence is only the model's score, not proof the label is correct. To reliably reject other objects, add appropriately labeled non-cat/dog examples (or extra classes) and retrain.
 
-The completed CNN is already saved as `18_000.h5`; you do not need to retrain it just to use the live camera. Running `main.py` starts training again and can overwrite the saved CNN and output files.
+## Optional: train the CNN again
 
 ### 1. Download the dataset
 
-Download the Dogs vs. Cats archive from the [project dataset link](https://drive.google.com/file/d/19inwa0n1W4DZamjCOm5XAlztvqG_xkjP/view?usp=sharing).
-
-The archive contains `train.zip` and `test1.zip`. Extract both so the project has this structure:
+Use the [Dogs vs. Cats dataset archive](https://drive.google.com/file/d/19inwa0n1W4DZamjCOm5XAlztvqG_xkjP/view?usp=sharing). Extract `train.zip` and, optionally, `test1.zip` into the project so the paths look like:
 
 ```text
 dataset/
@@ -131,73 +123,52 @@ dataset/
     └── ...
 ```
 
-You can extract with Windows File Explorer. Or, if the downloaded outer archive has first been extracted to `dataset-download`, use PowerShell:
-
-```powershell
-Expand-Archive .\dataset-download\train.zip -DestinationPath .\dataset
-Expand-Archive .\dataset-download\test1.zip -DestinationPath .\dataset
-```
-
-Do not put the ZIP archives themselves in place of the extracted image folders.
-
 ### 2. Start training
 
-Make sure the virtual environment is active, then run:
+Activate the virtual environment and run:
 
 ```powershell
 python main.py
 ```
 
-The script uses 18,000 randomly shuffled images from `dataset/train`, resizes images to 110 × 110 pixels, normalizes pixel values, and trains for 15 epochs with batch size 50. It also uses an 80/20 train/validation split.
+The script uses up to 18,000 shuffled images from `dataset/train`, a batch size of 50, and 15 epochs. A full retraining run overwrites the trained model and result files in `output/`.
 
 ### 3. Training outputs
 
-After training completes, the project folder contains:
-
 | File | Description |
 |---|---|
-| `18_000.h5` | Trained custom CNN |
-| `18_000_history.pickle` | Accuracy and loss values for each epoch |
-| `18_000_15epoch_accuracy.png` | Training/validation accuracy graph |
-| `18_000_15epoch_loss.png` | Training/validation loss graph |
-| `prediction.mp4` | Cat/dog predictions for up to 200 images in `dataset/test1` |
-| `logs/` | TensorBoard training logs |
+| `output/18_000.h5` | Trained CNN; used by `live_camera.py` |
+| `output/18_000_history.pickle` | Training and validation metrics |
+| `output/18_000_15epoch_accuracy.png` | Accuracy graph |
+| `output/18_000_15epoch_loss.png` | Loss graph |
+| `output/prediction.mp4` | Predictions for up to 200 images in `dataset/test1` |
+| `logs/` | TensorBoard logs |
 
-`dataset/` and `logs/` are excluded from Git. Keep the dataset locally if you may want to train again.
+## CNN architecture
 
-## Model details
-
-### Custom CNN (`main.py`)
-
-- Input: 110 × 110 RGB image
+- Input: 110 × 110 × 3 RGB image
 - Five convolution layers with 3 × 3 filters: 32, 64, 96, 96, and 64 filters
-- ReLU activations, max pooling, batch normalization, and dropout
+- ReLU activation, max pooling, batch normalization, and dropout
 - Dense layers: 256 and 128 units; two-unit softmax output
 - Optimizer: Adam; loss: binary cross-entropy
-- Labels: cat = 0, dog = 1
-
-### Live object detector (`live_camera.py`)
-
-- OpenCV DNN loads the OpenCV Zoo YOLOX ONNX model.
-- The model detects COCO categories; this project displays Person, Cat, and Dog.
-- Default detection confidence threshold: 0.40.
-- The YOLOX model is separate from the custom CNN and has its own license in `models/YOLOX_LICENSE.txt`.
-- Small, blurry, distant, or partly obscured animals may not be detected. Phone-screen images can be harder than clear, close-up images.
+- Labels: Cat = 0, Dog = 1
 
 ## Troubleshooting
 
-| Problem | What to check |
+| Problem | Solution |
 |---|---|
 | `py -3.12` is not recognized | Install Python 3.12 (64-bit), then reopen the terminal. |
 | `ModuleNotFoundError` | Activate `.venv` and run `pip install -r requirements.txt`. |
-| Camera cannot open | Close Zoom/Teams/Camera and other apps using it; reconnect the webcam and try again. |
-| Camera opens but no animal is detected | Show a clear, close-up image with the animal large in the frame and good lighting. |
-| `main.py` cannot find `dataset/train` | Extract the data and check the folder names and paths in the structure above. |
-| Training is slow | CPU training can take a long time. The live camera does not require training. |
+| Camera will not open | Close Camera, Teams, Zoom, or any app using it; reconnect the webcam and try again. |
+| Model file not found | Confirm `output/18_000.h5` is present in the project folder. |
+| `main.py` cannot find data | Check that `dataset/train` exists and contains files named like `cat.0.jpg` and `dog.0.jpg`. |
+| Prediction is incorrect | Try a clear, close-up cat/dog image with good lighting. Binary classification can mislabel other scenes. |
 
-## Credits and model license
+## Credits
 
 - **Project author:** Mr Manish Kumar
-- The live object detector and its license are provided by [OpenCV Zoo — YOLOX](https://github.com/opencv/opencv_zoo/tree/main/models/object_detection_yolox).
-- The dataset is linked for users to download; the dataset archive itself is not included in this repository.
-- A separate license for the project source code has not been specified.
+- The current dataset archive is linked above; its source and license should be retained when redistributing the dataset.
+
+## Project report
+
+[Download the CNN-only capstone report](./Cat_Dog_CNN_Project_Report.docx)
