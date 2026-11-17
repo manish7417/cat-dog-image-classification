@@ -34,6 +34,12 @@ Validation accuracy is measured on the held-out validation split. The unlabeled 
 
 ![Training and validation loss](./output/18_000_15epoch_loss.png)
 
+### CNN sample predictions
+
+These are example labels from the unlabeled `dataset/test1` folder. They demonstrate the model output; they are not an accuracy evaluation.
+
+![CNN sample predictions on test images](./output/cnn_sample_predictions.png)
+
 ## Project structure
 
 ```text
@@ -46,6 +52,7 @@ image-classification-using-cnn/
 │   ├── 18_000_history.pickle        # Per-epoch training metrics
 │   ├── 18_000_15epoch_accuracy.png  # Accuracy graph
 │   ├── 18_000_15epoch_loss.png      # Loss graph
+│   ├── cnn_sample_predictions.png   # Sample CNN predictions
 │   └── prediction.mp4               # Example predictions from test1
 ├── constants.py                     # Dataset and model settings
 ├── data_prep.py                     # Image loading and preprocessing
